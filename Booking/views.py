@@ -7,6 +7,11 @@ from rest_framework.response import Response
 
 # Create your views here.
 
+from django.http import HttpResponse
+
+def home_view(request):
+    return HttpResponse("Hello, World!")
+
 class BookingView(APIView):
 
     def post(self, request):
