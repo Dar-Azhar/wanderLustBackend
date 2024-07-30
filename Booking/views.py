@@ -22,7 +22,11 @@ class BookingView(APIView):
             seriallizer.save()
             return JsonResponse("booking has been done successfully" ,safe=False)
         return JsonResponse("booking failed, kindly try again." , safe=False)
-
+    def get(self, request):
+        bookings = Booking.objects.all()  # Get all bookings
+        serializer = BookingSerializer(bookings, many=True)  # Serialize the queryset
+        return JsonResponse(serializer.data, safe=False)
+            
     def get_booking(self,pk):
         try:
             booking = Booking.objects.get(id = pk)
