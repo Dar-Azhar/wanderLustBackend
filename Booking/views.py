@@ -6,9 +6,6 @@ from django.http.response import JsonResponse,Http404
 from .models import Booking
 from .models import Contact
 from rest_framework.response import Response
-
-# Create your views here.
-
 from django.http import HttpResponse
 
 def home_view(request):
