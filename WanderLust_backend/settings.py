@@ -53,7 +53,7 @@ CORS_ALLOWED_ORIGINS = [
     'https://wanderlusttravles.netlify.app',
     'https://wanderlust.up.railway.app',
 ]
-CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_ALL_ORIGINS = True
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
