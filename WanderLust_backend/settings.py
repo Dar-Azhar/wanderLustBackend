@@ -30,7 +30,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['localhost', 'wanderlust.up.railway.app']
+ALLOWED_HOSTS = ['localhost', "http://localhost:3000", 'wanderlust.up.railway.app']
 
 
 # Application definition
@@ -48,7 +48,8 @@ INSTALLED_APPS = [
 ]
 # CORS Configuration
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
+    'http://localhost:8000',
+    "http://localhost:3000",
     'https://wanderlust.up.railway.app'
 ]
 CORS_ALLOW_ALL_ORIGINS = False

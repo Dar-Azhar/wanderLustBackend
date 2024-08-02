@@ -1,8 +1,10 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from .serializer import BookingSerializer
+from .serializer import  ContactSerializer
 from django.http.response import JsonResponse,Http404
 from .models import Booking
+from .models import Contact
 from rest_framework.response import Response
 
 # Create your views here.
@@ -12,6 +14,20 @@ from django.http import HttpResponse
 def home_view(request):
     return HttpResponse("Hello, World!")
 
+class ContactView(APIView):
+      def post(self, request):
+        data = request.data
+        seriallizer =  ContactSerializer(data=data)
+        
+        if seriallizer.is_valid():
+            seriallizer.save()
+            return JsonResponse("message has been recieved successfully" ,safe=False)
+        return JsonResponse(" message not recieved, kindly try again." , safe=False)
+      def get(self, request):
+        AllContacts = Contact.objects.all()  # Get all bookings
+        serializer = ContactSerializer(AllContacts, many=True)  # Serialize the queryset
+        return JsonResponse(serializer.data, safe=False)
+        
 class BookingView(APIView):
 
     def post(self, request):
