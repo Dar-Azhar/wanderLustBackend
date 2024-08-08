@@ -1,12 +1,19 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
+from rest_framework import status
 from .serializer import BookingSerializer
 from .serializer import  ContactSerializer
+from .serializer import RegistrationSerializer
 from django.http.response import JsonResponse,Http404
 from .models import Booking
 from .models import Contact
+from .models import User
+from django.forms.models import model_to_dict
 from rest_framework.response import Response
 from django.http import HttpResponse
+from django.contrib.auth import authenticate
+from django.contrib.auth.hashers import make_password
+
 
 def home_view(request):
     return HttpResponse("Hello, World!")
@@ -90,4 +97,34 @@ class BookingView(APIView):
         booking_to_delete = Booking.objects.get(id=pk)
         booking_to_delete.delete()
         return JsonResponse("booking deleted sucessfully", safe=False) 
+    
+    
+class RegisterView(APIView):
+    def post(self, request):
+        if request.method == 'POST' :
+            serializer = RegistrationSerializer(data = request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return JsonResponse({"message": "User registered successfully"}, status=status.HTTP_201_CREATED, safe=False)
+            return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST,safe=False)
+        return JsonResponse({"error": "Method not allowed"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    def get(self, request):
+        users = User.objects.all()
+        serializer = RegistrationSerializer(users, many=True)
+        return Response(serializer.data)
+
+        
+class LoginView(APIView):
+    def post(self, request):
+        email = request.data.get('email').strip()  # Change from username to email
+        password = request.data.get('password').strip()
+        
+        user = authenticate(username=email, password=password)  # This should work with email
+
+        if user:
+            return Response({"message": "Login successful!"}, status=status.HTTP_200_OK)
+        return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
+  
+            
 

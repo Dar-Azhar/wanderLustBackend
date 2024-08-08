@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.validators import MinLengthValidator
-
+from django.contrib.auth.models import AbstractUser
 
 class Booking(models.Model):
     
@@ -22,3 +22,12 @@ class Contact(models.Model):
 
     def __str__(self):
         return self.name 
+
+class User(AbstractUser):
+    email = models.EmailField(max_length=50, unique=True)
+    REQUIRED_FIELDS = [ 'username' ]
+    
+    USERNAME_FIELD ="email"
+    def __str__(self):
+        return self.email
+    

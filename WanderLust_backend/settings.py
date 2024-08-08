@@ -30,9 +30,10 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1'"http://localhost:3000", 'wanderlust.up.railway.app']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'wanderlust.up.railway.app']
 
-
+# Models
+AUTH_USER_MODEL = 'Booking.User' 
 # Application definition
 
 INSTALLED_APPS = [
