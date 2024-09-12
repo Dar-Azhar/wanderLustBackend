@@ -4,15 +4,20 @@ from rest_framework import status
 from .serializer import BookingSerializer
 from .serializer import  ContactSerializer
 from .serializer import RegistrationSerializer
+from . serializer import BlogsSerializer
 from django.http.response import JsonResponse,Http404
 from .models import Booking
 from .models import Contact
-from .models import User
+from .models import User,Blogs
 from django.forms.models import model_to_dict
 from rest_framework.response import Response
 from django.http import HttpResponse
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, logout, login
 from django.contrib.auth.hashers import make_password
+from rest_framework.authtoken.models import Token
+from rest_framework.authentication import TokenAuthentication
+from django.views.decorators.csrf import csrf_exempt
+
 
 
 def home_view(request):
@@ -98,7 +103,51 @@ class BookingView(APIView):
         booking_to_delete.delete()
         return JsonResponse("booking deleted sucessfully", safe=False) 
     
-    
+class BlogsView(APIView):
+    def post(self, request):
+        data = request.data
+        serializer = BlogsSerializer(data=data)
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Your Blog has been created successfully"}, status=status.HTTP_201_CREATED)
+        
+        return Response({"error": "Failed to create blog, kindly try again.", "details": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request, blogId=None):
+        if blogId is not None:
+            # Fetch a single blog by id
+            try:
+                single_blog = Blogs.objects.get(blogId=blogId)
+                serializer = BlogsSerializer(single_blog)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            except Blogs.DoesNotExist:
+                return Response({"error": "Blog not found."}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            # Fetch all blogs
+            all_blogs = Blogs.objects.all()
+            serializer = BlogsSerializer(all_blogs, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+    # def post(self, request):
+    #     data = request.data
+    #     serializer = BlogsSerializer(data=data)
+        
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return JsonResponse("Your Blog has been created successfully", status=status.HTTP_201_CREATED, safe=False)
+    #     return JsonResponse(" failed to create blog, kindly try again." , safe=False)
+    # def get(self, request):
+    #     allBlogs = Blogs.object.all()
+    #     serializer = BlogsSerializer(allBlogs, many=True)
+    #     return JsonResponse(serializer.data, safe=False)
+    # def get(self, request):
+    #     id = request.data.params
+    #     SingleBlog = Blogs.get(id)
+    #     serializer = BlogsSerializer(SingleBlog)
+    #     return JsonResponse(serializer.data, safe=False)
+        
+            
+
 class RegisterView(APIView):
     def post(self, request):
         if request.method == 'POST' :
@@ -108,6 +157,7 @@ class RegisterView(APIView):
                 return JsonResponse({"message": "User registered successfully"}, status=status.HTTP_201_CREATED, safe=False)
             return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST,safe=False)
         return JsonResponse({"error": "Method not allowed"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    
     def get(self, request):
         users = User.objects.all()
         serializer = RegistrationSerializer(users, many=True)
@@ -116,14 +166,37 @@ class RegisterView(APIView):
         
 class LoginView(APIView):
     def post(self, request):
-        email = request.data.get('email').strip()  # Change from username to email
+        authentication_classes = (TokenAuthentication,)
+        email = request.data.get('email').strip()  
         password = request.data.get('password').strip()
         
-        user = authenticate(username=email, password=password)  # This should work with email
-
+        user = authenticate(username=email, password=password) 
+        
         if user:
-            return Response({"message": "Login successful!"}, status=status.HTTP_200_OK)
+           login(request, user)
+           token, created = Token.objects.get_or_create(user=user)
+           user_data = {
+              "token": token.key,
+              "message": "Login successful!",
+              "user":{
+                  "UserId" : user.id,
+                  "name" : user.username,
+                  "email" : user.email
+              }
+              
+          }
+           return Response(user_data, status=status.HTTP_200_OK)
         return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
+class LogoutView(APIView):
+    authentication_classes = [TokenAuthentication]
+
+    def post(self, request):
+        token = request.auth
+        if token:
+            token.delete()
+        logout(request)
+        return Response({"message": "Logout successful!"}, status=status.HTTP_200_OK)
 
   
             

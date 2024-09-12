@@ -1,4 +1,5 @@
 from django.db import models
+import uuid
 from django.core.validators import MinLengthValidator
 from django.contrib.auth.models import AbstractUser
 
@@ -22,6 +23,18 @@ class Contact(models.Model):
 
     def __str__(self):
         return self.name 
+
+
+class Blogs(models.Model):
+    blogId = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    category = models.TextField()
+    title = models.TextField()
+    bannerImage = models.ImageField(upload_to='blog_images/')
+    content = models.TextField()
+    
+    def __str__(self):
+        return f"{self.title} ({self.blogId})"
+
 
 class User(AbstractUser):
     email = models.EmailField(max_length=50, unique=True)

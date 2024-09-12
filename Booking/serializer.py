@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
-from .models import Booking, Contact,User
+from .models import Booking, Contact,User, Blogs
+import uuid
+
 
 class BookingSerializer(serializers.ModelSerializer):
     class Meta:
@@ -11,6 +13,16 @@ class ContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contact
         fields = '__all__'
+        
+class BlogsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Blogs
+        fields = '__all__'
+        
+         
+        def create(self, validated_data):
+            validated_data['blogId'] = str(uuid.uuid4())
+            return super().create(validated_data)
         
 class RegistrationSerializer(serializers.ModelSerializer):
     confirmPassword = serializers.CharField(write_only=True)
